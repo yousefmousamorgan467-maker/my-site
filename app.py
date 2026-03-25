@@ -3,7 +3,6 @@ import requests
 
 app = Flask(__name__)
 
-# مفتاحك يا يوسف
 API_KEY = "AIzaSyDBfEkyok9JzZJ8DQCFLard7EJSglE8CAQ"
 
 @app.route('/', methods=['GET', 'POST'])
@@ -20,22 +19,44 @@ def index():
                 v_id = "error"
     
     return render_template_string('''
-        <body style="background:#000; color:#1db954; text-align:center; font-family:sans-serif; padding-top:50px;">
-            <div style="border:2px solid #1db954; display:inline-block; padding:30px; border-radius:20px; background:#111;">
-                <h1>🎸 Yousef Player</h1>
+        <!DOCTYPE html>
+        <html lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Yousef Audio Player</title>
+        </head>
+        <body style="background:#000; color:#1db954; text-align:center; font-family:sans-serif; padding-top:100px;">
+            <div style="border:2px solid #1db954; display:inline-block; padding:40px; border-radius:30px; background:#111; box-shadow: 0 0 30px #1db954;">
+                <h1 style="font-size:35px; margin-bottom:10px;">📻 يوسف ميوزك</h1>
+                <p style="color:#888; margin-bottom:30px;">وضع "الصوت فقط" مفعل ✅</p>
+                
                 <form method="POST">
-                    <input type="text" name="query" placeholder="اسم الأغنية..." style="padding:10px; border-radius:10px;">
-                    <button type="submit" style="padding:10px; background:#1db954; color:#000; font-weight:bold; border-radius:10px;">تشغيل</button>
+                    <input type="text" name="query" placeholder="اكتب اسم الأغنية..." 
+                           style="padding:15px; border-radius:25px; border:none; width:250px; text-align:center; outline:none; background:#222; color:#fff;">
+                    <br><br>
+                    <button type="submit" style="padding:12px 30px; background:#1db954; color:#000; font-weight:bold; border:none; border-radius:25px; cursor:pointer; font-size:18px;">
+                        استماع الآن 🎵
+                    </button>
                 </form>
+
                 {% if v_id and v_id != "error" %}
-                    <div style="margin-top:20px;">
-                        <iframe width="100%" height="200" src="https://www.youtube.com/embed/{{ v_id }}" frameborder="0" allowfullscreen></iframe>
+                    <div style="margin-top:30px;">
+                        <p style="color:#1db954; font-weight:bold;">جاري التشغيل في الخلفية...</p>
+                        <iframe width="1" height="1" 
+                                src="https://www.youtube.com/embed/{{ v_id }}?autoplay=1" 
+                                frameborder="0" allow="autoplay">
+                        </iframe>
+                        <div style="margin-top:10px;">
+                            <button onclick="location.reload()" style="background:red; color:white; border:none; padding:5px 15px; border-radius:15px; cursor:pointer;">إيقاف الصوت ⏹️</button>
+                        </div>
                     </div>
                 {% endif %}
             </div>
+            <p style="color:#333; margin-top:50px;">تطوير يوسف - ثانوية عامة 🎓</p>
         </body>
+        </html>
     ''', v_id=v_id)
 
-# السطر ده هو السر لـ Vercel
-# بيعرفه إن ده التطبيق اللي هيشغله
 app = app
+    
