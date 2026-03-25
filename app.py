@@ -4,57 +4,59 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    search_results = ""
+    audio_player = ""
     if request.method == 'POST':
         song_name = request.form.get('song_name')
         if song_name:
-            # هنا بنعمل رابط بحث مباشر على يوتيوب ميوزيك عشان يظهر للمستخدم
-            search_results = f"""
-            <div style='margin-top:20px;'>
-                <p>نتائج البحث عن: <b>{song_name}</b></p>
-                <iframe width="100%" height="300" 
-                    src="https://www.youtube.com/embed?listType=search&list={song_name}" 
-                    frameborder="0" allowfullscreen>
-                </iframe>
+            # استخدام محرك بحث صوتي مفتوح (مثال للتوضيح)
+            # هنا بنوجه المشغل ليدور في مكتبة صوتية
+            audio_player = f"""
+            <div style='margin-top:30px;'>
+                <p style='color:#1db954;'>تشغيل الآن: <b>{song_name}</b></p>
+                <audio controls autoplay style='width:100%;'>
+                    <source src="https://musicapi.rocks/search?q={song_name}" type="audio/mpeg">
+                    متصفحك لا يدعم مشغل الصوت.
+                </audio>
             </div>
             """
 
     return render_template_string(f"""
     <html>
         <head>
-            <title>Yousef Search Music</title>
+            <title>Yousef Music Player</title>
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <style>
                 body {{ 
-                    background: #121212; color: white; text-align: center; 
-                    font-family: sans-serif; padding: 20px; margin: 0;
+                    background: #000; color: white; text-align: center; 
+                    font-family: 'Segoe UI', sans-serif; padding: 20px; 
                 }}
-                .search-box {{
-                    background: #1e1e1e; padding: 20px; border-radius: 15px;
-                    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+                .main-card {{
+                    background: #121212; padding: 30px; border-radius: 20px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+                    max-width: 450px; margin: auto;
                 }}
                 input[type="text"] {{
-                    width: 80%; padding: 12px; border-radius: 25px; border: none;
-                    margin-bottom: 10px; outline: none;
+                    width: 90%; padding: 15px; border-radius: 30px; border: 1px solid #333;
+                    background: #282828; color: white; margin-bottom: 15px; outline: none;
                 }}
                 button {{
-                    padding: 10px 25px; border-radius: 25px; border: none;
-                    background: #1db954; color: white; font-weight: bold; cursor: pointer;
+                    padding: 12px 35px; border-radius: 30px; border: none;
+                    background: #1db954; color: black; font-weight: bold; cursor: pointer;
                 }}
-                h1 {{ color: #1db954; }}
+                h1 {{ font-size: 28px; margin-bottom: 25px; color: white; }}
             </style>
         </head>
         <body>
-            <div class="search-box">
-                <h1>🔍 Yousef Music Search</h1>
+            <div class="main-card">
+                <h1>🎸 Music Box</h1>
                 <form method="POST">
-                    <input type="text" name="song_name" placeholder="اكتب اسم الأغنية هنا..." required>
+                    <input type="text" name="song_name" placeholder="ابحث عن أغنية أو فنان..." required>
                     <br>
-                    <button type="submit">بحث</button>
+                    <button type="submit">تشغيل</button>
                 </form>
-                {search_results}
+                {audio_player}
             </div>
-            <p style="margin-top:20px; font-size:12px; color:#666;">البحث مدعوم بواسطة YouTube</p>
+            <p style="margin-top:30px; font-size:12px; color:#555;">Made by Yousef for Music Lovers</p>
         </body>
     </html>
     """)
