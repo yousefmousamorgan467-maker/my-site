@@ -1,55 +1,61 @@
-from flask import Flask
+from flask import Flask, render_template_string, request
 
 app = Flask(__name__)
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def home():
-    # استبدل كلمة 'yousefmousamorgan467-maker' باسم اليوزر بتاعك على GitHub لو كان مختلف
-    github_user = "yousefmousamorgan467-maker"
-    repo = "my-site"
-    
-    return f"""
+    search_results = ""
+    if request.method == 'POST':
+        song_name = request.form.get('song_name')
+        if song_name:
+            # هنا بنعمل رابط بحث مباشر على يوتيوب ميوزيك عشان يظهر للمستخدم
+            search_results = f"""
+            <div style='margin-top:20px;'>
+                <p>نتائج البحث عن: <b>{song_name}</b></p>
+                <iframe width="100%" height="300" 
+                    src="https://www.youtube.com/embed?listType=search&list={song_name}" 
+                    frameborder="0" allowfullscreen>
+                </iframe>
+            </div>
+            """
+
+    return render_template_string(f"""
     <html>
         <head>
-            <title>Yousef Music World</title>
+            <title>Yousef Search Music</title>
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <style>
                 body {{ 
-                    background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460);
-                    color: white; text-align: center; font-family: sans-serif; padding-top: 30px;
-                    margin: 0; height: 100vh;
+                    background: #121212; color: white; text-align: center; 
+                    font-family: sans-serif; padding: 20px; margin: 0;
                 }}
-                .card {{ 
-                    background: rgba(255, 255, 255, 0.1); 
-                    padding: 25px; border-radius: 20px; 
-                    display: inline-block; backdrop-filter: blur(15px);
-                    width: 85%; max-width: 400px;
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                .search-box {{
+                    background: #1e1e1e; padding: 20px; border-radius: 15px;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
                 }}
-                .song-box {{ margin-bottom: 30px; }}
-                audio {{ width: 100%; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5)); }}
-                h2 {{ margin-bottom: 20px; font-weight: 300; }}
+                input[type="text"] {{
+                    width: 80%; padding: 12px; border-radius: 25px; border: none;
+                    margin-bottom: 10px; outline: none;
+                }}
+                button {{
+                    padding: 10px 25px; border-radius: 25px; border: none;
+                    background: #1db954; color: white; font-weight: bold; cursor: pointer;
+                }}
+                h1 {{ color: #1db954; }}
             </style>
         </head>
         <body>
-            <div class="card">
-                <h2>🎵 Yousef's Playlist 🎵</h2>
-                
-                <div class="song-box">
-                    <p>عصام صاصا 2026</p>
-                    <audio controls>
-                        <source src="https://raw.githubusercontent.com/{github_user}/{repo}/main/Sasa_Exclusive_2026.mp3" type="audio/mpeg">
-                    </audio>
-                </div>
-
-                <div class="song-box">
-                    <p>سامر المدني</p>
-                    <audio controls>
-                        <source src="https://raw.githubusercontent.com/{github_user}/{repo}/main/Samer_Exclusive.mp3" type="audio/mpeg">
-                    </audio>
-                </div>
+            <div class="search-box">
+                <h1>🔍 Yousef Music Search</h1>
+                <form method="POST">
+                    <input type="text" name="song_name" placeholder="اكتب اسم الأغنية هنا..." required>
+                    <br>
+                    <button type="submit">بحث</button>
+                </form>
+                {search_results}
             </div>
+            <p style="margin-top:20px; font-size:12px; color:#666;">البحث مدعوم بواسطة YouTube</p>
         </body>
     </html>
-    """
+    """)
     
