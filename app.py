@@ -3,7 +3,7 @@ import requests
 
 app = Flask(__name__)
 
-# مفتاح الـ API بتاعك المظبوط
+# مفتاحك يا يوسف
 API_KEY = "AIzaSyDBfEkyok9JzZJ8DQCFLard7EJSglE8CAQ"
 
 @app.route('/', methods=['GET', 'POST'])
@@ -36,5 +36,6 @@ def index():
         </body>
     ''', v_id=v_id)
 
-# السطر ده هو اللي Vercel بيدور عليه
-app = app 
+# السطر ده هو السر لـ Vercel
+# بيعرفه إن ده التطبيق اللي هيشغله
+app = app
