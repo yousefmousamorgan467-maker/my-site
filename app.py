@@ -3,7 +3,7 @@ from flask import Flask, render_template_string, request
 
 app = Flask(__name__)
 
-# المفتاح الجديد بتاعك اللي لسه بعته
+# مفتاحك الجديد اللي أنت طلعته
 API_KEY = "AIzaSyDBfEkyok9JzZJ8DQCFLard7EJSglE8CAQ" 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -12,7 +12,6 @@ def home():
     if request.method == 'POST':
         q = request.form.get('query')
         if q:
-            # طلب البحث من يوتيوب
             url = f"https://www.googleapis.com/youtube/v3/search?part=snippet&q={q}&type=video&key={API_KEY}&maxResults=1"
             res = requests.get(url).json()
             if "items" in res and res["items"]:
@@ -30,9 +29,9 @@ def home():
                 {% if v_id %}
                     <div style="margin-top:20px; border-radius:15px; overflow:hidden; border:1px solid #333;">
                         <iframe width="100%" height="230" 
-                                src="https://www.youtube-nocookie.com/embed/{{ v_id }}?autoplay=1" 
+                                src="https://www.youtube.com/embed/{{ v_id }}?autoplay=1&origin=https://vercel.app" 
                                 frameborder="0" 
-                                allow="autoplay; encrypted-media" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                 allowfullscreen>
                         </iframe>
                     </div>
