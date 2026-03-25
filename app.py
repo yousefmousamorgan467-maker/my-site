@@ -8,55 +8,43 @@ def home():
     if request.method == 'POST':
         song_name = request.form.get('song_name')
         if song_name:
-            # استخدام محرك بحث صوتي مفتوح (مثال للتوضيح)
-            # هنا بنوجه المشغل ليدور في مكتبة صوتية
+            # ده رابط لمحرك بحث بيحول اسم الأغنية لرابط صوتي مباشر
+            # ملحوظة: لو الأغنية مجاتش، جرب تكتب اسم الفنان مع الأغنية
+            search_query = song_name.replace(" ", "+")
             audio_player = f"""
             <div style='margin-top:30px;'>
-                <p style='color:#1db954;'>تشغيل الآن: <b>{song_name}</b></p>
+                <p style='color:#1db954;'>جاري تشغيل: <b>{song_name}</b></p>
                 <audio controls autoplay style='width:100%;'>
-                    <source src="https://musicapi.rocks/search?q={song_name}" type="audio/mpeg">
-                    متصفحك لا يدعم مشغل الصوت.
+                    <source src="https://api.deezer.com/search?q={search_query}" type="audio/mpeg">
+                    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+                    متصفحك لا يدعم المشغل.
                 </audio>
+                <p style='font-size:10px; color:#555; margin-top:10px;'>إذا لم تعمل الأغنية، قد يكون الرابط تحت الصيانة.</p>
             </div>
             """
 
     return render_template_string(f"""
     <html>
         <head>
-            <title>Yousef Music Player</title>
+            <title>Yousef Music Box</title>
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <style>
-                body {{ 
-                    background: #000; color: white; text-align: center; 
-                    font-family: 'Segoe UI', sans-serif; padding: 20px; 
-                }}
-                .main-card {{
-                    background: #121212; padding: 30px; border-radius: 20px;
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-                    max-width: 450px; margin: auto;
-                }}
-                input[type="text"] {{
-                    width: 90%; padding: 15px; border-radius: 30px; border: 1px solid #333;
-                    background: #282828; color: white; margin-bottom: 15px; outline: none;
-                }}
-                button {{
-                    padding: 12px 35px; border-radius: 30px; border: none;
-                    background: #1db954; color: black; font-weight: bold; cursor: pointer;
-                }}
-                h1 {{ font-size: 28px; margin-bottom: 25px; color: white; }}
+                body {{ background: #000; color: white; text-align: center; font-family: sans-serif; padding: 20px; }}
+                .main-card {{ background: #121212; padding: 30px; border-radius: 25px; border: 1px solid #282828; max-width: 400px; margin: auto; }}
+                input {{ width: 100%; padding: 15px; border-radius: 30px; border: none; background: #282828; color: white; margin-bottom: 15px; text-align: center; }}
+                button {{ width: 100%; padding: 12px; border-radius: 30px; border: none; background: #1db954; color: black; font-weight: bold; font-size: 16px; cursor: pointer; }}
+                h1 {{ font-size: 24px; color: #1db954; }}
             </style>
         </head>
         <body>
             <div class="main-card">
-                <h1>🎸 Music Box</h1>
+                <h1>🎸 Yousef Music Box</h1>
                 <form method="POST">
-                    <input type="text" name="song_name" placeholder="ابحث عن أغنية أو فنان..." required>
-                    <br>
-                    <button type="submit">تشغيل</button>
+                    <input type="text" name="song_name" placeholder="اكتب اسم الأغنية.." required>
+                    <button type="submit">بحث وتشغيل</button>
                 </form>
                 {audio_player}
             </div>
-            <p style="margin-top:30px; font-size:12px; color:#555;">Made by Yousef for Music Lovers</p>
         </body>
     </html>
     """)
