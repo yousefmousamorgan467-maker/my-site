@@ -4,49 +4,40 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    player_html = ""
+    sc_player = ""
     if request.method == 'POST':
-        song_name = request.form.get('song_name')
-        if song_name:
-            # هنا بنستخدم مشغل يوتيوب بس بنصغر حجمه جداً ونخفي الفيديو
-            player_html = f"""
-            <div style='margin-top:20px; background:#282828; padding:15px; border-radius:15px;'>
-                <p style='color:#1db954;'>جاري تشغيل: <b>{song_name}</b></p>
-                <div style="width: 100%; height: 80px; overflow: hidden; border-radius: 10px;">
-                    <iframe 
-                        width="100%" 
-                        height="300" 
-                        src="https://www.youtube.com/embed?listType=search&list={song_name}&autoplay=1" 
-                        frameborder="0" 
-                        style="margin-top: -150px;" 
-                        allow="autoplay">
-                    </iframe>
-                </div>
-                <p style="font-size:10px; color:#888; margin-top:10px;">المشغل يعمل بنظام "صوت اليوتيوب" المباشر</p>
+        track_url = request.form.get('track_url')
+        if track_url:
+            # ده كود بيحول رابط ساوند كلاود لمشغل صوت شيك
+            sc_player = f"""
+            <div style='margin-top:20px;'>
+                <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" 
+                src="https://w.soundcloud.com/player/?url={track_url}&color=%231db954&auto_play=true&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false">
+                </iframe>
             </div>
             """
 
     return render_template_string(f"""
     <html>
         <head>
-            <title>Yousef's Ultimate Player</title>
+            <title>Yousef Sound Player</title>
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <style>
                 body {{ background: #121212; color: white; text-align: center; font-family: sans-serif; padding: 20px; }}
-                .container {{ max-width: 400px; margin: auto; background: #181818; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }}
-                input {{ width: 100%; padding: 15px; border-radius: 25px; border: none; background: #333; color: white; margin-bottom: 15px; outline: none; }}
-                button {{ width: 100%; padding: 12px; border-radius: 25px; border: none; background: #1db954; color: black; font-weight: bold; cursor: pointer; }}
-                h1 {{ color: #1db954; font-size: 22px; }}
+                .box {{ background: #181818; padding: 25px; border-radius: 20px; max-width: 400px; margin: auto; }}
+                input {{ width: 100%; padding: 12px; border-radius: 20px; border: 1px solid #333; background: #222; color: white; margin-bottom: 10px; }}
+                button {{ width: 100%; padding: 10px; border-radius: 20px; border: none; background: #1db954; font-weight: bold; cursor: pointer; }}
             </style>
         </head>
         <body>
-            <div class="container">
-                <h1>🔍 محرك بحث يوسف للموسيقى</h1>
+            <div class="box">
+                <h1>🎧 Yousef Music Box</h1>
+                <p style="font-size: 14px; color: #888;">انسخ رابط الأغنية من SoundCloud وحطه هنا:</p>
                 <form method="POST">
-                    <input type="text" name="song_name" placeholder="اكتب اسم الأغنية هنا..." required>
-                    <button type="submit">بحث وتشغيل</button>
+                    <input type="text" name="track_url" placeholder="https://soundcloud.com/..." required>
+                    <button type="submit">تشغيل الآن</button>
                 </form>
-                {player_html}
+                {sc_player}
             </div>
         </body>
     </html>
