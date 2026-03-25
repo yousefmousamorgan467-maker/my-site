@@ -1,52 +1,36 @@
+import requests
 from flask import Flask, render_template_string, request
 
 app = Flask(__name__)
 
+# حط المفتاح اللي بيبدأ بـ AIza هنا بين القوسين
+API_KEY = "AIzaSyBJuy12nBn7rWayQmWmyOpcbX0NKMMSKG4"
+
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    player_html = ""
+    video_id = ""
     if request.method == 'POST':
         query = request.form.get('query')
         if query:
-            # استخدام محرك بحث بيحول الاسم لرابط تشغيل صوتي/مرئي مستقر
-            # ده كود بيجيب أول نتيجة بحث من يوتيوب ويشغلها في "برواز" محمي
-            player_html = f'''
-            <div style="margin-top:20px; border-radius:15px; overflow:hidden; border:2px solid #1db954;">
-                <iframe 
-                    width="100%" 
-                    height="250" 
-                    src="https://www.youtube-nocookie.com/embed?listType=search&list={query}" 
-                    frameborder="0" 
-                    allow="autoplay; encrypted-media" 
-                    allowfullscreen>
-                </iframe>
-            </div>
-            '''
+            # ده السطر اللي بيستخدم المفتاح بتاعك عشان يجيب الفيديو
+            url = f"https://www.googleapis.com/youtube/v3/search?part=snippet&q={query}&type=video&key={API_KEY}&maxResults=1"
+            response = requests.get(url).json()
+            if "items" in response and response["items"]:
+                video_id = response["items"][0]["id"]["videoId"]
 
-    return render_template_string(f'''
-    <html>
-        <head>
-            <title>Yousef Ultimate Music</title>
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-            <style>
-                body {{ background: #000; color: white; text-align: center; font-family: sans-serif; padding: 15px; }}
-                .card {{ background: #111; padding: 25px; border-radius: 20px; box-shadow: 0 0 20px #1db954; max-width: 450px; margin: auto; }}
-                input {{ width: 100%; padding: 15px; border-radius: 30px; border: none; background: #222; color: white; margin-bottom: 15px; text-align: center; }}
-                button {{ width: 100%; padding: 12px; border-radius: 30px; border: none; background: #1db954; color: black; font-weight: bold; cursor: pointer; }}
-                h1 {{ color: #1db954; }}
-            </style>
-        </head>
-        <body>
-            <div class="card">
-                <h1>🎸 محرك يوسف الموسيقي</h1>
+    return render_template_string('''
+        <body style="background:#000; color:#fff; text-align:center; font-family:sans-serif; padding:20px;">
+            <div style="border:2px solid #1db954; border-radius:20px; padding:20px; max-width:400px; margin:auto; background:#111;">
+                <h1 style="color:#1db954;">🎸 Yousef Music Engine</h1>
                 <form method="POST">
-                    <input type="text" name="query" placeholder="اكتب اسم الأغنية هنا..." required>
-                    <button type="submit">تشغيل فوري</button>
+                    <input type="text" name="query" placeholder="بحث عن أغنية..." style="width:100%; padding:12px; border-radius:20px; border:none; margin-bottom:10px; text-align:center;">
+                    <button type="submit" style="width:100%; padding:10px; border-radius:20px; background:#1db954; color:#000; font-weight:bold; border:none;">تشغيل</button>
                 </form>
-                {player_html}
+                {% if video_id %}
+                    <iframe width="100%" height="220" src="https://www.youtube-nocookie.com/embed/{{ video_id }}?autoplay=1" frameborder="0" style="margin-top:20px; border-radius:15px;" allowfullscreen></iframe>
+                {% endif %}
             </div>
-            <p style="font-size:10px; color:#444; margin-top:20px;">تطوير يوسف - تالتة ثانوي 🚀</p>
+            <p style="color:#555; font-size:12px; margin-top:15px;">Developed by Yousef 🎓</p>
         </body>
-    </html>
-    ''')
+    ''', video_id=video_id)
     
