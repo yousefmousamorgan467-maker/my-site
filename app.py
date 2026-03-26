@@ -3,6 +3,7 @@ import requests
 
 app = Flask(__name__)
 
+# مفتاح الـ API اللي تعبنا فيه
 API_KEY = "AIzaSyDBfEkyok9JzZJ8DQCFLard7EJSglE8CAQ"
 
 @app.route('/', methods=['GET', 'POST'])
@@ -30,19 +31,18 @@ def index():
             <title>Yousef Music | Remix Edition</title>
             <style>
                 body { background: #000; color: #fff; text-align: center; font-family: sans-serif; padding: 10px; }
-                .container { max-width: 500px; margin: auto; background: #111; padding: 20px; border-radius: 25px; border: 1px solid #ff0050; }
+                .container { max-width: 500px; margin: auto; background: #111; padding: 20px; border-radius: 25px; border: 1px solid #ff0050; box-shadow: 0 0 20px rgba(255, 0, 80, 0.2); }
                 h1 { color: #ff0050; text-shadow: 0 0 10px #ff0050; }
-                input { width: 80%; padding: 12px; border-radius: 20px; border: none; background: #222; color: #fff; margin-bottom: 10px; text-align: center; }
-                .btn-main { width: 90%; padding: 12px; background: #ff0050; color: #fff; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; }
+                input { width: 85%; padding: 12px; border-radius: 20px; border: none; background: #222; color: #fff; margin-bottom: 15px; text-align: center; font-size: 16px; border: 1px solid #333; }
+                .btn-main { width: 95%; padding: 12px; background: #ff0050; color: #fff; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 16px; }
                 
-                /* أزرار الريمكس الجانبية */
-                .remix-panel { margin-top: 15px; display: flex; justify-content: center; gap: 10px; }
-                .side-btn { background: #333; color: #0f0; border: 1px solid #0f0; padding: 8px 15px; border-radius: 15px; font-size: 12px; cursor: pointer; }
-                .side-btn.active { background: #0f0; color: #000; }
+                /* صندوق المشغل وشريط التقديم */
+                .custom-player { background: #1a1a1a; padding: 15px; border-radius: 20px; margin-top: 20px; border: 1px solid #333; }
+                #yt-wrapper { margin-top: 10px; border-radius: 15px; overflow: hidden; background: #000; }
                 
-                iframe { border-radius: 15px; margin-top: 15px; filter: grayscale(100%) invert(100%); display: none; } /* مخفي عشان نتحكم في الصوت */
-                .custom-player { background: #222; padding: 15px; border-radius: 15px; margin-top: 15px; }
-                .play-pause { font-size: 30px; cursor: pointer; color: #ff0050; }
+                .remix-panel { margin-top: 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+                .side-btn { background: #222; color: #0f0; border: 1px solid #0f0; padding: 10px 15px; border-radius: 15px; font-size: 13px; cursor: pointer; flex: 1; min-width: 100px; }
+                .play-pause { font-size: 40px; cursor: pointer; color: #ff0050; margin: 15px 0; }
             </style>
         </head>
         <body>
@@ -55,11 +55,13 @@ def index():
 
                 {% if v_id and v_id != "error" %}
                     <div class="custom-player">
-                        <h3 id="trackTitle">{{ title }}</h3>
+                        <h3 id="trackTitle" style="font-size: 16px; color: #eee;">{{ title }}</h3>
                         
-                        <div id="youtube-audio"></div>
+                        <div id="yt-wrapper">
+                            <div id="youtube-audio"></div>
+                        </div>
 
-                        <div class="play-pause" id="ctrlIcon" onclick="togglePlay()">▶️</div>
+                        <div class="play-pause" id="ctrlIcon" onclick="togglePlay()">⏸️</div>
                         
                         <div class="remix-panel">
                             <button class="side-btn" onclick="applyEffect('speed')">⚡ ريمكس سريع</button>
@@ -67,7 +69,7 @@ def index():
                             <button class="side-btn" onclick="applyEffect('normal')">🔄 طبيعي</button>
                         </div>
 
-                        <a href="https://loader.to/api/button/?url=https://www.youtube.com/watch?v={{ v_id }}&f=mp3" target="_blank" style="display:block; margin-top:15px; color:#aaa; text-decoration:none; font-size:12px;">تحميل النسخة الأصلية 📥</a>
+                        <a href="https://loader.to/api/button/?url=https://www.youtube.com/watch?v={{ v_id }}&f=mp3" target="_blank" style="display:block; margin-top:20px; color:#666; text-decoration:none; font-size:12px;">تحميل النسخة الأصلية 📥</a>
                     </div>
 
                     <script>
@@ -79,18 +81,19 @@ def index():
                         var player;
                         function onYouTubeIframeAPIReady() {
                             player = new YT.Player('youtube-audio', {
-                                height: '0',
-                                width: '0',
+                                height: '60', // كدة الشريط هيظهر
+                                width: '100%',
                                 videoId: '{{ v_id }}',
-                                playerVars: { 'autoplay': 1, 'loop': 1 },
+                                playerVars: { 'autoplay': 1, 'controls': 1, 'modestbranding': 1 },
                                 events: { 'onReady': onPlayerReady }
                             });
                         }
 
-                        function onPlayerReady(event) { event.target.playVideo(); document.getElementById('ctrlIcon').innerHTML = "⏸️"; }
+                        function onPlayerReady(event) { event.target.playVideo(); }
 
                         function togglePlay() {
-                            if (player.getPlayerState() == 1) {
+                            var state = player.getPlayerState();
+                            if (state == 1) {
                                 player.pauseVideo();
                                 document.getElementById('ctrlIcon').innerHTML = "▶️";
                             } else {
@@ -101,24 +104,24 @@ def index():
 
                         function applyEffect(type) {
                             if (type == 'speed') {
-                                player.setPlaybackRate(1.25); // تسريع الأغنية للريمكس
-                                alert("تم تفعيل وضع الريمكس السريع ⚡");
+                                player.setPlaybackRate(1.25);
+                                alert("وضع الريمكس السريع شغال ⚡");
                             } else if (type == 'bass') {
-                                // اليوتيوب لا يدعم Bass Boost مباشر برمجياً، فنقوم بتعلية الصوت لأقصى درجة
                                 player.setVolume(100);
-                                alert("تم تفعيل وضع الدبة (تأكد من رفع صوت سماعاتك) 🔊");
+                                alert("تم رفع الصوت للأقصى (وضع الدبة) 🔊");
                             } else {
                                 player.setPlaybackRate(1);
-                                alert("العودة للوضع الطبيعي 🔄");
+                                alert("رجعت طبيعي 🔄");
                             }
                         }
                     </script>
                 {% endif %}
             </div>
-            <p style="color:#333; font-size:10px; margin-top:20px;">حصرياً: أول موقع ريمكس فوري لـ يوسف</p>
+            <p style="color:#222; font-size:10px; margin-top:20px;">حصرياً لـ يوسف - مبرمج المستقبل</p>
         </body>
         </html>
     ''', v_id=v_id, title=title)
 
-app = app
-    
+if __name__ == '__main__':
+    app.run()
+                    
