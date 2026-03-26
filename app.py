@@ -3,7 +3,6 @@ import requests
 
 app = Flask(__name__)
 
-# مفتاح الـ API اللي تعبنا فيه
 API_KEY = "AIzaSyDBfEkyok9JzZJ8DQCFLard7EJSglE8CAQ"
 
 @app.route('/', methods=['GET', 'POST'])
@@ -28,48 +27,89 @@ def index():
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Yousef Music | Remix Edition</title>
+            <title>Yousef Music | Animated Edition</title>
             <style>
-                body { background: #000; color: #fff; text-align: center; font-family: sans-serif; padding: 10px; }
-                .container { max-width: 500px; margin: auto; background: #111; padding: 20px; border-radius: 25px; border: 1px solid #ff0050; box-shadow: 0 0 20px rgba(255, 0, 80, 0.2); }
-                h1 { color: #ff0050; text-shadow: 0 0 10px #ff0050; }
-                input { width: 85%; padding: 12px; border-radius: 20px; border: none; background: #222; color: #fff; margin-bottom: 15px; text-align: center; font-size: 16px; border: 1px solid #333; }
-                .btn-main { width: 95%; padding: 12px; background: #ff0050; color: #fff; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 16px; }
+                /* خلفية بألوان متحركة */
+                body { 
+                    margin: 0;
+                    height: 100vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-family: 'Segoe UI', sans-serif;
+                    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+                    background-size: 400% 400%;
+                    animation: gradient 15s ease infinite;
+                    color: #fff;
+                    overflow: hidden;
+                }
+
+                @keyframes gradient {
+                    0% { background-position: 0% 50%; }
+                    50% { background-position: 100% 50%; }
+                    100% { background-position: 0% 50%; }
+                }
+
+                .player-card {
+                    background: rgba(0, 0, 0, 0.6);
+                    backdrop-filter: blur(15px);
+                    padding: 30px;
+                    border-radius: 40px;
+                    width: 85%;
+                    max-width: 400px;
+                    text-align: center;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+                }
+
+                input { 
+                    width: 80%; padding: 12px; border-radius: 25px; border: none; 
+                    background: rgba(255,255,255,0.1); color: #fff; 
+                    margin-bottom: 15px; text-align: center; outline: none;
+                    border: 1px solid rgba(255,255,255,0.2);
+                }
+
+                .btn-search { 
+                    width: 90%; padding: 12px; background: #fff; color: #000; 
+                    border: none; border-radius: 25px; font-weight: bold; cursor: pointer; 
+                }
+
+                /* شريط التقديم المخصص */
+                .audio-controls { margin-top: 25px; }
+                #seek-bar { width: 100%; cursor: pointer; accent-color: #e73c7e; }
                 
-                /* صندوق المشغل وشريط التقديم */
-                .custom-player { background: #1a1a1a; padding: 15px; border-radius: 20px; margin-top: 20px; border: 1px solid #333; }
-                #yt-wrapper { margin-top: 10px; border-radius: 15px; overflow: hidden; background: #000; }
+                .time-info { display: flex; justify-content: space-between; font-size: 12px; margin-top: 5px; }
                 
-                .remix-panel { margin-top: 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-                .side-btn { background: #222; color: #0f0; border: 1px solid #0f0; padding: 10px 15px; border-radius: 15px; font-size: 13px; cursor: pointer; flex: 1; min-width: 100px; }
-                .play-pause { font-size: 40px; cursor: pointer; color: #ff0050; margin: 15px 0; }
+                .play-btn { font-size: 50px; cursor: pointer; margin: 20px 0; display: inline-block; transition: 0.3s; }
+                .play-btn:hover { transform: scale(1.1); }
+
+                /* إخفاء فيديو يوتيوب تماماً */
+                #yt-player { display: none; }
+                
+                .track-name { font-size: 18px; font-weight: bold; margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
             </style>
         </head>
         <body>
-            <div class="container">
+            <div class="player-card">
                 <h1>🎧 Yousef Music</h1>
                 <form method="POST">
-                    <input type="text" name="query" placeholder="اسم الأغنية اللي عايز تعملها ريمكس..." required>
-                    <button type="submit" class="btn-main">بحث وتحويل 🚀</button>
+                    <input type="text" name="query" placeholder="ابحث عن أغنية..." required>
+                    <button type="submit" class="btn-search">تشغيل 🚀</button>
                 </form>
 
                 {% if v_id and v_id != "error" %}
-                    <div class="custom-player">
-                        <h3 id="trackTitle" style="font-size: 16px; color: #eee;">{{ title }}</h3>
+                    <div class="audio-controls">
+                        <div class="track-name">{{ title }}</div>
                         
-                        <div id="yt-wrapper">
-                            <div id="youtube-audio"></div>
-                        </div>
+                        <div id="yt-player"></div>
 
-                        <div class="play-pause" id="ctrlIcon" onclick="togglePlay()">⏸️</div>
+                        <div class="play-btn" id="playIcon" onclick="togglePlay()">⏸️</div>
                         
-                        <div class="remix-panel">
-                            <button class="side-btn" onclick="applyEffect('speed')">⚡ ريمكس سريع</button>
-                            <button class="side-btn" onclick="applyEffect('bass')">🔊 دبة عالية</button>
-                            <button class="side-btn" onclick="applyEffect('normal')">🔄 طبيعي</button>
+                        <input type="range" id="seek-bar" value="0" step="1">
+                        <div class="time-info">
+                            <span id="current-time">0:00</span>
+                            <span id="duration">0:00</span>
                         </div>
-
-                        <a href="https://loader.to/api/button/?url=https://www.youtube.com/watch?v={{ v_id }}&f=mp3" target="_blank" style="display:block; margin-top:20px; color:#666; text-decoration:none; font-size:12px;">تحميل النسخة الأصلية 📥</a>
                     </div>
 
                     <script>
@@ -79,49 +119,60 @@ def index():
                         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
                         var player;
+                        var seekBar = document.getElementById('seek-bar');
+
                         function onYouTubeIframeAPIReady() {
-                            player = new YT.Player('youtube-audio', {
-                                height: '60', // كدة الشريط هيظهر
-                                width: '100%',
+                            player = new YT.Player('yt-player', {
+                                height: '0', width: '0',
                                 videoId: '{{ v_id }}',
-                                playerVars: { 'autoplay': 1, 'controls': 1, 'modestbranding': 1 },
+                                playerVars: { 'autoplay': 1, 'controls': 0 },
                                 events: { 'onReady': onPlayerReady }
                             });
                         }
 
-                        function onPlayerReady(event) { event.target.playVideo(); }
+                        function onPlayerReady(event) {
+                            updateTimer();
+                            setInterval(updateTimer, 1000);
+                        }
 
                         function togglePlay() {
-                            var state = player.getPlayerState();
-                            if (state == 1) {
+                            if (player.getPlayerState() == 1) {
                                 player.pauseVideo();
-                                document.getElementById('ctrlIcon').innerHTML = "▶️";
+                                document.getElementById('playIcon').innerHTML = "▶️";
                             } else {
                                 player.playVideo();
-                                document.getElementById('ctrlIcon').innerHTML = "⏸️";
+                                document.getElementById('playIcon').innerHTML = "⏸️";
                             }
                         }
 
-                        function applyEffect(type) {
-                            if (type == 'speed') {
-                                player.setPlaybackRate(1.25);
-                                alert("وضع الريمكس السريع شغال ⚡");
-                            } else if (type == 'bass') {
-                                player.setVolume(100);
-                                alert("تم رفع الصوت للأقصى (وضع الدبة) 🔊");
-                            } else {
-                                player.setPlaybackRate(1);
-                                alert("رجعت طبيعي 🔄");
+                        function updateTimer() {
+                            if (player && player.getCurrentTime) {
+                                var curr = player.getCurrentTime();
+                                var dur = player.getDuration();
+                                seekBar.max = dur;
+                                seekBar.value = curr;
+                                
+                                document.getElementById('current-time').innerHTML = formatTime(curr);
+                                document.getElementById('duration').innerHTML = formatTime(dur);
                             }
+                        }
+
+                        seekBar.oninput = function() {
+                            player.seekTo(seekBar.value);
+                        };
+
+                        function formatTime(time) {
+                            var min = Math.floor(time / 60);
+                            var sec = Math.floor(time % 60);
+                            return min + ":" + (sec < 10 ? '0' : '') + sec;
                         }
                     </script>
                 {% endif %}
             </div>
-            <p style="color:#222; font-size:10px; margin-top:20px;">حصرياً لـ يوسف - مبرمج المستقبل</p>
         </body>
         </html>
     ''', v_id=v_id, title=title)
 
 if __name__ == '__main__':
     app.run()
-                    
+                
